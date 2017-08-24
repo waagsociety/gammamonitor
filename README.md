@@ -26,28 +26,28 @@ const measurement = gammaMonitor(options)
 ## API
 Al methods with the exeption of the Error handler (catch) receive a `Measurement {}` as its only paremeter with `measurement` as its context.
 
-### measurement.active
+### .active
 Boolean that represents wheater a measurement is taking place.
 
-### measurement.start()
+### .start()
 Method to start a measurement.
 
-### measurement.stop()
+### .stop()
 Method to stop a measurement.
 
-### measurement.onStart(callback)
+### .onStart(callback)
 Method that is called when the measurements has started.
 
-### measurement.onStop(callback)
+### .onStop(callback)
 Method that is called when the measurements has stopped.
 
-### measurement.onUpdate(callback)
+### .onUpdate(callback)
 Method that is called when the measurements has updated (once every second).
 
-### measurement.onChange(callback)
+### .onChange(callback)
 Method that is called when the measurements has changed (once every minute).
 
-### measurement.catch(callback)
+### .catch(callback)
 Method that is called when the measurements has thrown an Error. If an error occurs, the measurement is stopped right away.
 
 ## License
