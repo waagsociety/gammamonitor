@@ -1,0 +1,19 @@
+{
+  "name": "gamma-monitor",
+  "version": "1.0.0",
+  "description": "Count gamma radiation with your webcam using WebRTC and Canvas",
+  "main": "src/index.js",
+  "keywords": [
+    "gamma",
+    "radiation",
+    "webrtc",
+    "canvas",
+    "gammasense",
+  ],
+  "repository" : { 
+    "type" : "git",
+    "url" : "https://github.com/npm/npm.git"
+  },
+  "author": "Waag Society",
+  "license": "MIT"
+}

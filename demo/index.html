@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GammaSensor</title>
+</head>
+<body>
+
+  <button id="start" type="button">Start</button>
+  <button id="stop" type="button">Stop</button>
+
+  <article>
+    
+    <h1>Count per Second</h1>
+    <p id="cps">-</p>
+
+    <h1>Count per Minute</h1>
+    <p id="cpm">-</p>
+
+    <h1>Duration</h1>
+    <p id="duration">-</p>
+
+  </article>
+
+<script src="../src/index.js"></script>
+<script>
+let minutes = 0
+
+function initialise() {
+  cps.textContent = '-'
+  cpm.textContent = '-'
+  duration.textContent = '-'
+  minutes = 0
+}
+
+const sensor = gammaMonitor()
+  .onStop(initialise)
+  .onStart(measurement => console.log('start'))
+  .onUpdate(measurement => {
+    duration.textContent = toTime(minutes, measurement.progress * 60)
+    cps.textContent = measurement.countPerSecond
+  })
+  .onChange(measurement => {
+    cpm.textContent = measurement.countPerMinute
+    ++minutes
+  })
+  .catch(alert)
+
+document.querySelector('#start').onclick = event => sensor.start()
+document.querySelector('#stop').onclick = event => sensor.stop()
+
+function toTime(minutes, seconds) {
+  return [padTime(minutes), padTime(seconds)].join(':')
+}
+
+function padTime(value) {
+  return (value < 10 ? '0' : '') + Math.round(value)
+}
+
+</script>
+
+</body>
+</html>
