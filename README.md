@@ -24,7 +24,7 @@ const measurement = gammaMonitor(options)
 ```
 
 ## API
-Al methods with the exeption of the Error handler (catch) receive a `Measurement {}` as its only paremeter with `measurement` as its context.
+Al methods with the exeption of the Error handler (.catch) receive a `Measurement {}` as its only paremeter with `measurement` as its context.
 
 ### .active
 Boolean that represents wheater a measurement is taking place.

@@ -138,6 +138,7 @@
 
   function Measurement() {
     return Object.assign(this,{
+      v: VERSION,
       startTime: Date.now(),
       frameTime: null,
       baseline: 0,
