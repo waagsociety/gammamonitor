@@ -43,4 +43,4 @@ const measurement = gammaMonitor(options)
 
 ## License
 
-MIT © [<%= Waag Society %>](https://github.com/<%= githubUsername %>)
+MIT © [Waag Society](https://github.com/waagsociety)
