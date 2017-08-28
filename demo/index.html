@@ -36,6 +36,7 @@ const sensor = gammaMonitor()
   .onStop(initialise)
   .onStart(measurement => console.log('start'))
   .onUpdate(measurement => {
+    console.log(JSON.stringify(measurement, null, 2))
     duration.textContent = toTime(minutes, measurement.progress * 60)
     cps.textContent = measurement.countPerSecond
   })

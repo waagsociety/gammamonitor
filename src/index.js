@@ -7,7 +7,7 @@
   
   const SECOND = 1000
   const SECONDS_PER_MINUTE = 60
-  const VERSION = 1
+  const VERSION = 2
 
   options = Object.assign({
     width: 320,
@@ -42,29 +42,31 @@
 
   function gammaMonitor(options) {
     
+
     const media = { id: null, track: null }
+    const measurement = new Measurement(false)
+
     const interval = SECOND / options.frameRate
     const video = createElement('video')
     
-    const events = createEventListener(this)
+    const events = createEventListener(this, measurement)
     const isSecond = isNth(options.frameRate)
     const isMinute = isNth(options.frameRate * SECONDS_PER_MINUTE)
 
     return Object.assign(this, {
-      active: false,
+      measurement: measurement,
       start() {
 
-        if (this.active) return
+        if (this.measurement.active) return
         else if (!hasVideoSupport()) events.emit(new Error('Video is not supported by this browser'))
         else if (!hasCanvasSupport()) events.emit(new Error('Canvas is not supported by this browser'))
         else if (!hasMediaSupport()) events.emit(new Error('WebRTC is not supported by this browser'))
         else createVideoStream(video, options)
           .then(track => {
             
-            this.active = true
             media.track = track
+            events.emit('start', new Measurement(true))
             
-            const state = new Measurement()
             const samples = []
             let length
 
@@ -81,36 +83,37 @@
               const gammaData = resolveImageData(imageData)
 
               length = samples.push(gammaData)
-              state.frameTime = Date.now()
+              measurement.frameTime = Date.now()
 
               if (isSecond(length)) {
-                state.progress = (samples.length / options.frameRate) / SECONDS_PER_MINUTE
-                state.countPerSecond = sum(samples.slice(-options.frameRate))
-                events.emit('update', state)
+                const progress = (samples.length / options.frameRate) / SECONDS_PER_MINUTE
+                const countPerSecond = sum(samples.slice(-options.frameRate))
+                const seconds = measurement.seconds.concat(countPerSecond)
+                events.emit('update', { progress, countPerSecond, seconds })
               }
 
               if (isMinute(length)) {
-                state.countPerMinute = sum(samples)
-                events.emit('change', state)
+                const countPerMinute = sum(samples)
+                const minutes = measurement.minutes.concat(countPerMinute)
+                const seconds = []
+                events.emit('change', { countPerMinute, minutes, seconds })
                 samples.length = 0
               }
 
             }, interval)
 
-            events.emit('start', state)
-
           })
-          .catch(error => events.emit('catch', error))
+          .catch(error => events.emit('catch', { error: error }))
 
         return this
 
       },
       stop() {
-        if (this.active) {
-          this.active = false 
+        console.log(this.measurement)
+        if (this.measurement.active) {
           media.id = clearInterval(media.id)
           media.track.stop()
-          events.emit('stop')
+          events.emit('stop', { active: false })
         }
         return this
       },
@@ -127,8 +130,8 @@
         return events.set('stop', callback)
       },
       catch(callback) {
-        return events.set('catch', function(error) {          
-          callback(error)
+        return events.set('catch', function(measurement) {          
+          callback(measurement)
           this.stop()
         })
       },
@@ -136,26 +139,33 @@
 
   }
 
-  function Measurement() {
+  function Measurement(active) {
+    const startTime = active ? Date.now() : null
     return Object.assign(this,{
-      v: VERSION,
-      startTime: Date.now(),
+      version: VERSION,
+      active: active,
+      ready: false,
+      startTime: startTime,
       frameTime: null,
+      progress: 0,
       baseline: 0,
-      countPerSecond: 0,      
+      countPerSecond: 0,   
       countPerMinute: 0,
+      seconds: [],
+      minutes: [],
+      error: null,
     })
   }
   
-  function createEventListener(object) {
+  function createEventListener(object, measurement) {
     const events = {}
     return {
       set(type, callback) {
         events[type] = callback
         return object
       },
-      emit(type, value) {
-        return (events[type] || noop).call(object, value)
+      emit(type, update) {
+        return (events[type] || noop).call(object, Object.assign(measurement, update))
       },
     }
   }
